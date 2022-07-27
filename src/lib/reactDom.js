@@ -42,7 +42,7 @@ function perforUnitOfWork(fiber) {
       return nextFiber.sibling
     }
 
-    nextFiber = nextFiber.fiber
+    nextFiber = nextFiber.parent
   }
 }
 
