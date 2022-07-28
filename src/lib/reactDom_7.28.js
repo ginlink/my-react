@@ -1,26 +1,28 @@
-import { TEXT_ELEMENT } from './constants'
+import { TEXT_ELEMENT } from "./constants";
 
 let nextUnitWork;
 
-function createDom(element) {
-  const dom =
-    element.type === TEXT_ELEMENT
-      ? document.createTextNode('')
-      : document.createElement(element.type)
+function createDom(fiber) {
+  // 1.创建节点
+  // 2.赋予属性
+
+  const dom = fiber.type === TEXT_ELEMENT
+    ? document.createTextNode('')
+    : document.createElement(fiber.type)
 
   const isProperty = (key) => key !== 'children'
-  element?.props &&
-    Object.keys(element.props)
+  fiber.props
+    && Object.keys(fiber.props)
       .filter(isProperty)
-      .forEach((key) => dom[key] = element.props[key])
+      .forEach((key) => dom[key] = fiber.props[key])
 
   return dom
 }
 
-function perForUnitWork(fiber) {
-  // 创建DOM
-  // 为当前fiber创建子fiber
-  // 返回下一个执行单元
+function perForNextUnitWork(fiber) {
+  // 1.构建dom
+  // 2.构建子fiber
+  // 3.返回下一个工作任务
 
   if (!fiber.dom) {
     fiber.dom = createDom(fiber)
@@ -31,22 +33,22 @@ function perForUnitWork(fiber) {
   }
 
   const children = fiber.props?.children
-  let prevChild;
+  let prevFiber;
   children && children.forEach((child, index) => {
     const newFiber = {
-      parent: fiber,
       type: child.type,
       props: child.props,
+      parent: fiber,
       dom: undefined
     }
 
     if (index === 0) {
       fiber.child = newFiber
     } else {
-      prevChild.sibling = newFiber
+      prevFiber.sibling = newFiber
     }
 
-    prevChild = newFiber
+    prevFiber = newFiber
   })
 
   if (fiber.child) {
@@ -64,13 +66,14 @@ function perForUnitWork(fiber) {
 }
 
 function workLoop(deadline) {
-  // 是否有空闲时间
-  // 是否有任务
-  // 渲染节点
+  // 1.有空闲
+  // 2.有任务
+  // 3.执行任务并返回下一个任务
 
   let shouldYield = true
+
   while (shouldYield && nextUnitWork) {
-    nextUnitWork = perForUnitWork(nextUnitWork)
+    nextUnitWork = perForNextUnitWork(nextUnitWork)
     shouldYield = deadline.timeRemaining > 1
   }
 
@@ -81,16 +84,18 @@ requestIdleCallback(workLoop)
 
 function render(element, container) {
   nextUnitWork = {
-    dom: container,
     props: {
       children: [element]
     },
-    parent: undefined
+    dom: container,
+    parent: undefined,
+    child: undefined,
   }
 }
 
-const MyReactDom = {
+
+const reactDom = {
   render
 }
 
-export default MyReactDom
+export default reactDom
