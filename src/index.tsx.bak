@@ -1,0 +1,77 @@
+// // import React from "react";
+// // import ReactDOM from "react-dom";
+
+import { MyReactDom } from "./lib";
+
+// import { MyReact, MyReactDom } from "./lib";
+
+// const element = MyReact.createElement(
+//   "div",
+//   { title: "hello" },
+//   "我是一个内容",
+//   MyReact.createElement(
+//     "p",
+//     null,
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     MyReact.createElement("div", { id: "div" }, "我是div内容")
+//   ),
+//   MyReact.createElement(
+//     "p",
+//     null,
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     MyReact.createElement("div", { id: "div" }, "我是div内容")
+//   ),
+//   MyReact.createElement(
+//     "p",
+//     null,
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     MyReact.createElement("div", { id: "div" }, "我是div内容")
+//   ),
+//   MyReact.createElement(
+//     "p",
+//     null,
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     "我是p标签内容",
+//     MyReact.createElement("div", { id: "div" }, "我是div内容")
+//   )
+// );
+
+// MyReactDom.render(element, document.getElementById("root") as HTMLElement);
+
+const contianer = document.getElementById("root") as HTMLElement;
+function handleChange(e: any) {
+  renderder(e.target.value);
+}
+
+function renderder(value: string) {
+  const element = () => {
+    return (
+      <div>
+        <input onChange={handleChange} value={value} />
+      </div>
+    );
+  };
+
+  MyReactDom.render(element, contianer);
+}
+
+renderder("嘻嘻");

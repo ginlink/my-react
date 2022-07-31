@@ -7151,11 +7151,6 @@ react-is@^18.0.0:
   resolved "https://registry.npmmirror.com/react-is/-/react-is-18.1.0.tgz#61aaed3096d30eacf2a2127118b5b41387d32a67"
   integrity sha512-Fl7FuabXsJnV5Q1qIOQwx/sagGF18kogb4gpfcG4gjLBWO0WDiiz1ko/ExayuxE7InyQkBLkxRFG5oxY6Uu3Kg==
 
-react-progressbar-semicircle@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.npmmirror.com/react-progressbar-semicircle/-/react-progressbar-semicircle-1.2.1.tgz#f59ccd8dd6c9ac9f098dd17924b983f4524cb8a3"
-  integrity sha512-idSWvbagqUo02H4nsbN6wwGAocNo/rWjRyIudhx3VPSeMg1m/vkjs7Xx4XSfuPLxP1p4DbFL7IW2JoeW9Mz4CQ==
-
 react-refresh@^0.11.0:
   version "0.11.0"
   resolved "https://registry.npmmirror.com/react-refresh/-/react-refresh-0.11.0.tgz#77198b944733f0f1f1a90e791de4541f9f074046"

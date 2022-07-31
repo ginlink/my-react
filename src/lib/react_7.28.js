@@ -1,6 +1,6 @@
 import { TEXT_ELEMENT } from './constants'
 
-function createElement(type, props, ...children) {
+export function createElement(type, props, ...children) {
   return {
     type,
     props: {
@@ -23,9 +23,3 @@ function createTextElement(child) {
     }
   }
 }
-
-const React = {
-  createElement
-}
-
-export default React
