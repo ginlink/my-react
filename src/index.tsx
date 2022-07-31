@@ -1,23 +1,19 @@
 /** @jsxRuntime classic */
-
-import MyReact from './lib'
-
 /** @jsx MyReact.createElement */
 
-const contianer = document.getElementById("root")
+import MyReact from "./lib";
 
-// const handleChange = (e) => {
-//   renderder(e.target.value);
-// }
-const handleInput = (e) => {
+const contianer = document.getElementById("root") as HTMLElement;
+
+function handleInput(e: any) {
   renderder(e.target.value);
 }
 
-const renderder = (value) => {
+function renderder(value: string) {
   const element = (
     <div>
       <input onInput={handleInput} value={value} />
-      <h1>内容：{value}</h1>
+      <h2>内容：{value}</h2>
     </div>
   );
 
