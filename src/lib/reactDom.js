@@ -78,7 +78,7 @@ function createDom(element) {
   return dom
 }
 
-function render(element, container) {
+export function render(element, container) {
   // 构建fiber
   nextUnitWork = {
     dom: container,
@@ -88,9 +88,3 @@ function render(element, container) {
     parent: undefined,
   }
 }
-
-const ReactDom = {
-  render
-}
-
-export default ReactDom

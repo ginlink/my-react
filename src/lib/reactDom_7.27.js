@@ -79,7 +79,7 @@ function workLoop(deadline) {
 
 requestIdleCallback(workLoop)
 
-function render(element, container) {
+export function render(element, container) {
   nextUnitWork = {
     dom: container,
     props: {
@@ -88,9 +88,3 @@ function render(element, container) {
     parent: undefined
   }
 }
-
-const MyReactDom = {
-  render
-}
-
-export default MyReactDom

@@ -1,6 +1,6 @@
 import { TEXT_ELEMENT } from './constants'
 
-function createElement(type, props, ...children) {
+export function createElement(type, props, ...children) {
   console.log('[children]:', children)
   return {
     type,
@@ -22,10 +22,3 @@ function createTextElement(child) {
     }
   }
 }
-
-
-const React = {
-  createElement
-}
-
-export default React
