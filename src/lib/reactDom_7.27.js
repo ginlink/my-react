@@ -1,3 +1,8 @@
+/**
+ * New:
+ *  1.新增concurrent mode
+ */
+
 import { TEXT_ELEMENT } from './constants'
 
 let nextUnitWork;

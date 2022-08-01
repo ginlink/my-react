@@ -1,15 +1,16 @@
-/**
- * New:
- *  1.新增commit，render&commit阶段
- *  2.新增fiber树比较
- */
+// review 7.31
+// 1.render&commit阶段
+// 2.fiber树比较
+// 3.修复delection操作时，重复渲染子元素问题 
 
-import { TEXT_ELEMENT } from "./constants";
+import { TEXT_ELEMENT, EFFECT_PLACEMENT, EFFECT_UPDATE, EFFECT_DELECTION } from "./constants";
 
-let nextUnitWork;
-let wipRoot;
-let currentRoot;
-let delections = []
+let nextUnitWork,
+  wipRoot,
+  currentRoot,
+  delections = [];
+
+// wip: work in process
 
 function createDom(fiber) {
   // 1.创建节点
@@ -25,11 +26,14 @@ function createDom(fiber) {
 }
 
 function reconciliationDom(wipFiber, elements) {
-  let prevFiber, i = 0;
-  let oldFiber = wipFiber.alternate && wipFiber.alternate.child
+  // 比较新旧，构建新fiber
 
-  while ((elements && i < elements.length) || !!oldFiber) {
-    const childElement = elements[i]
+  let prevFiber,
+    index = 0,
+    oldFiber = wipFiber.alternate?.child;
+
+  while (index < elements.length || oldFiber) {
+    const childElement = elements[index]
     const sameType = oldFiber && childElement && oldFiber.type === childElement.type
     let newFiber;
 
@@ -40,7 +44,7 @@ function reconciliationDom(wipFiber, elements) {
         parent: wipFiber,
         dom: oldFiber.dom,
         alternate: oldFiber,
-        effectTag: 'UPDATE'
+        effectTag: EFFECT_UPDATE,
       }
     }
 
@@ -51,12 +55,12 @@ function reconciliationDom(wipFiber, elements) {
         parent: wipFiber,
         dom: undefined,
         alternate: undefined,
-        effectTag: 'PLACEMENT'
+        effectTag: EFFECT_PLACEMENT,
       }
     }
 
     if (!sameType && oldFiber) {
-      oldFiber.effectTag = 'DELECTION'
+      oldFiber.effectTag = EFFECT_DELECTION
       delections.push(oldFiber)
     }
 
@@ -64,19 +68,18 @@ function reconciliationDom(wipFiber, elements) {
       oldFiber = oldFiber.sibling
     }
 
-
-    if (i === 0) {
+    if (index === 0) {
       wipFiber.child = newFiber
-    } else if (prevFiber) {
+    } else {
       prevFiber.sibling = newFiber
     }
 
     prevFiber = newFiber
-    ++i
+    ++index
   }
 }
 
-function performNextUnitWork(fiber) {
+function perFormNextUnitWork(fiber) {
   // 1.构建dom
   // 2.构建子fiber
   // 3.返回下一个工作任务
@@ -86,6 +89,7 @@ function performNextUnitWork(fiber) {
   }
 
   const elements = fiber.props?.children
+
   reconciliationDom(fiber, elements)
 
   if (fiber.child) {
@@ -102,33 +106,27 @@ function performNextUnitWork(fiber) {
   }
 }
 
-const isProperty = (key) => key !== 'children'
-const isEvent = (key) => key.startsWith('on')
-const isGone = (prev, next) => (key) => !(key in next)
-const isNew = (prev, next) => (key) => prev[key] !== next[key]
-function updateDom(dom, prevProps, nextProps) {
-  // 1.移出所有老的属性 (事件)
-  // 2.增加新的属性 (事件)
+const isEvent = (key) => key && key.startsWith('on')
+const isProperty = (key) => key !== 'children' && !isEvent(key)
+const isGone = (prevProps, nextProps) => (key) => !(key in nextProps)
+const isNew = (prevProps, nextProps) => (key) => prevProps[key] !== nextProps[key]
 
+function updateDom(dom, prevProps, nextProps) {
+  // 重置旧的，赋值新的
   Object.keys(prevProps)
     .filter(isProperty)
     .filter(isGone(prevProps, nextProps))
-    .forEach((key) => {
-      dom[key] = ''
-    })
+    .forEach((key) => dom[key] = '')
 
   Object.keys(prevProps)
     .filter(isEvent)
     .filter((key) =>
       isGone(prevProps, nextProps)(key)
-      || isNew(prevProps, nextProps)(key)
-    )
+      || isNew(prevProps, nextProps)(key))
     .forEach((key) => {
       const eventType = key.slice(2).toLowerCase()
       dom.removeEventListener(
         eventType,
-
-        // why is not dom[key] ?
         prevProps[key]
       )
     })
@@ -137,6 +135,7 @@ function updateDom(dom, prevProps, nextProps) {
     .filter(isProperty)
     .filter(isNew(prevProps, nextProps))
     .forEach((key) => dom[key] = nextProps[key])
+
 
   Object.keys(nextProps)
     .filter(isEvent)
@@ -156,36 +155,34 @@ function commitWork(fiber) {
   }
 
   const parentDom = fiber.parent.dom
-  // parentDom.appendChild(fiber.dom)
 
   switch (fiber.effectTag) {
-    case "PLACEMENT":
-      !!fiber.dom && parentDom.appendChild(fiber.dom)
+    case EFFECT_PLACEMENT:
+      parentDom && fiber.dom && parentDom.appendChild(fiber.dom)
       break;
-    case "UPDATE":
-      !!fiber.dom && updateDom(fiber.dom, fiber.alternate.props, fiber.props)
+    case EFFECT_UPDATE:
+      fiber.dom && updateDom(fiber.dom, fiber.alternate.props, fiber.props)
       break;
-    case "DELECTION":
-      !!fiber.dom && parentDom.removeChild(fiber.dom)
+    case EFFECT_DELECTION:
+      parentDom && fiber.dom && parentDom.removeChild(fiber.dom)
       break;
-
     default:
       break;
   }
+
+  fiber.effectTag = ''
 
   commitWork(fiber.child)
   commitWork(fiber.sibling)
 }
 
 function commitRoot() {
-  // 1.commit
-  // 2.维护wipRoot状态
+  // 渲染dom
+  // 维护wipRoot
   commitWork(wipRoot.child)
-  // commitWork(delections)
   delections.forEach(commitWork)
 
   currentRoot = wipRoot
-
   wipRoot = undefined
 }
 
@@ -197,11 +194,10 @@ function workLoop(deadline) {
   let shouldYield = true
 
   while (shouldYield && nextUnitWork) {
-    nextUnitWork = performNextUnitWork(nextUnitWork)
+    nextUnitWork = perFormNextUnitWork(nextUnitWork)
     shouldYield = deadline.timeRemaining > 1
   }
 
-  // commit
   if (!nextUnitWork && wipRoot) {
     commitRoot()
   }
@@ -212,7 +208,7 @@ function workLoop(deadline) {
 requestIdleCallback(workLoop)
 
 export function render(element, container) {
-  wipRoot = {
+  nextUnitWork = {
     props: {
       children: [element]
     },
@@ -222,6 +218,6 @@ export function render(element, container) {
     alternate: currentRoot,
   }
 
-  nextUnitWork = wipRoot
+  wipRoot = nextUnitWork
   delections = []
 }
