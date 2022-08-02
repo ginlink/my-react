@@ -5,31 +5,28 @@ import MyReact from "./lib";
 
 const contianer = document.getElementById("root") as HTMLElement;
 
-let show = true,
-  lastValue = "";
+function App() {
+  const [number, setNumber] = MyReact.useState(0);
+  const [show, setShow] = MyReact.useState(true);
 
-function handleInput(e: any) {
-  renderder(e.target.value);
-}
-
-function handleToggle() {
-  show = !show;
-  renderder(lastValue);
-}
-
-function renderder(value: string) {
-  lastValue = value;
-
-  const element = (
+  return (
     <div>
-      <input onInput={handleInput} value={value} />
-      <button onClick={handleToggle}>toggle</button>
-
-      {show ? <h2>内容：{value}</h2> : null}
+      <h2 onClick={() => setNumber(number + 1)}>Hello</h2>
+      <button onClick={() => setNumber(number + 1)}>increment</button>
+      <button onClick={() => setShow(!show)}>toggle</button>
+      {show ? <div>{number}</div> : null}
     </div>
   );
-
-  MyReact.render(element, contianer);
 }
 
-renderder("嘻嘻");
+function Theme() {
+  return <h2>Themem</h2>;
+}
+
+MyReact.render(
+  <div>
+    <App />
+    <Theme />
+  </div>,
+  contianer
+);
