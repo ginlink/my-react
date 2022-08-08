@@ -3,14 +3,14 @@
 
 import MyReact from "./lib";
 
-const contianer = document.getElementById("root") as HTMLElement;
+const container = document.getElementById("root") as HTMLElement;
 
 function App() {
   const [number, setNumber] = MyReact.useState(0);
   const [show, setShow] = MyReact.useState(true);
 
   return (
-    <div>
+    <div id="app">
       <h2 onClick={() => setNumber(number + 1)}>Hello</h2>
       <button onClick={() => setNumber(number + 1)}>increment</button>
       <button onClick={() => setShow(!show)}>toggle</button>
@@ -19,8 +19,22 @@ function App() {
   );
 }
 
+// let show = true;
+// const handleShow = () => {
+//   show = !show;
+
+//   MyReact.render(
+//     <div>
+//       {/* <App /> */}
+//       <button onClick={handleShow}>toggle</button>
+//       {show ? <Theme /> : null}
+//     </div>,
+//     container
+//   );
+// };
+
 function Theme() {
-  return <h2>Themem</h2>;
+  return <h2>Theme</h2>;
 }
 
 MyReact.render(
@@ -28,5 +42,5 @@ MyReact.render(
     <App />
     <Theme />
   </div>,
-  contianer
+  container
 );

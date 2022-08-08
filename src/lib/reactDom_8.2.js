@@ -2,12 +2,12 @@
 // 1.新增function component
 // 2.新增hooks
 
-import { TEXT_ELEMENT, EFFECT_PLACEMENT, EFFECT_UPDATE, EFFECT_DELECTION } from "./constants";
+import { TEXT_ELEMENT, EFFECT_PLACEMENT, EFFECT_UPDATE, EFFECT_DELETION } from "./constants";
 
 let nextUnitWork,
   wipRoot,
   currentRoot,
-  delections = [],
+  deletions = [],
   wipFiber,
   hookIndex;
 
@@ -26,12 +26,12 @@ function createDom(fiber) {
   return dom
 }
 
-function reconciliationDom(wipFiber, elements) {
+function reconciliationDom(fiber, elements) {
   // 比较新旧，构建新fiber
 
   let prevFiber,
     index = 0,
-    oldFiber = wipFiber.alternate?.child;
+    oldFiber = fiber.alternate?.child;
 
   while (index < elements.length || oldFiber) {
     const childElement = elements[index]
@@ -42,7 +42,7 @@ function reconciliationDom(wipFiber, elements) {
       newFiber = {
         type: childElement.type,
         props: childElement.props,
-        parent: wipFiber,
+        parent: fiber,
         dom: oldFiber.dom,
         alternate: oldFiber,
         effectTag: EFFECT_UPDATE,
@@ -53,7 +53,7 @@ function reconciliationDom(wipFiber, elements) {
       newFiber = {
         type: childElement.type,
         props: childElement.props,
-        parent: wipFiber,
+        parent: fiber,
         dom: undefined,
         alternate: undefined,
         effectTag: EFFECT_PLACEMENT,
@@ -61,8 +61,8 @@ function reconciliationDom(wipFiber, elements) {
     }
 
     if (!sameType && oldFiber) {
-      oldFiber.effectTag = EFFECT_DELECTION
-      delections.push(oldFiber)
+      oldFiber.effectTag = EFFECT_DELETION
+      deletions.push(oldFiber)
     }
 
     if (oldFiber) {
@@ -70,7 +70,7 @@ function reconciliationDom(wipFiber, elements) {
     }
 
     if (index === 0) {
-      wipFiber.child = newFiber
+      fiber.child = newFiber
     } else {
       prevFiber.sibling = newFiber
     }
@@ -105,7 +105,7 @@ export function useState(initial) {
     }
 
     wipRoot = nextUnitWork
-    delections = []
+    deletions = []
   }
 
   wipFiber.hooks.push(hook)
@@ -205,11 +205,11 @@ function updateDom(dom, prevProps, nextProps) {
     })
 }
 
-function commitDelection(fiber, parentDom) {
+function commitDeletion(fiber, parentDom) {
   if (fiber.dom) {
     parentDom.removeChild(fiber.dom)
   } else {
-    commitDelection(fiber.child, parentDom)
+    commitDeletion(fiber.child, parentDom)
   }
 }
 
@@ -231,8 +231,8 @@ function commitWork(fiber) {
     case EFFECT_UPDATE:
       fiber.dom && updateDom(fiber.dom, fiber.alternate.props, fiber.props)
       break;
-    case EFFECT_DELECTION:
-      commitDelection(fiber, parentDom)
+    case EFFECT_DELETION:
+      commitDeletion(fiber, parentDom)
       break;
     default:
       break;
@@ -247,8 +247,9 @@ function commitWork(fiber) {
 function commitRoot() {
   // 渲染dom
   // 维护wipRoot
+  console.log('[wipRoot]:', wipRoot)
   commitWork(wipRoot.child)
-  delections.forEach(commitWork)
+  deletions.forEach(commitWork)
 
   currentRoot = wipRoot
   wipRoot = undefined
@@ -287,5 +288,5 @@ export function render(element, container) {
   }
 
   wipRoot = nextUnitWork
-  delections = []
+  deletions = []
 }

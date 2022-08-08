@@ -3,12 +3,12 @@
 // 2.fiber树比较
 // 3.修复delection操作时，重复渲染子元素问题 
 
-import { TEXT_ELEMENT, EFFECT_PLACEMENT, EFFECT_UPDATE, EFFECT_DELECTION } from "./constants";
+import { TEXT_ELEMENT, EFFECT_PLACEMENT, EFFECT_UPDATE, EFFECT_DELETION } from "./constants";
 
 let nextUnitWork,
   wipRoot,
   currentRoot,
-  delections = [];
+  deletions = [];
 
 // wip: work in process
 
@@ -60,8 +60,8 @@ function reconciliationDom(wipFiber, elements) {
     }
 
     if (!sameType && oldFiber) {
-      oldFiber.effectTag = EFFECT_DELECTION
-      delections.push(oldFiber)
+      oldFiber.effectTag = EFFECT_DELETION
+      deletions.push(oldFiber)
     }
 
     if (oldFiber) {
@@ -163,7 +163,7 @@ function commitWork(fiber) {
     case EFFECT_UPDATE:
       fiber.dom && updateDom(fiber.dom, fiber.alternate.props, fiber.props)
       break;
-    case EFFECT_DELECTION:
+    case EFFECT_DELETION:
       parentDom && fiber.dom && parentDom.removeChild(fiber.dom)
       break;
     default:
@@ -180,7 +180,7 @@ function commitRoot() {
   // 渲染dom
   // 维护wipRoot
   commitWork(wipRoot.child)
-  delections.forEach(commitWork)
+  deletions.forEach(commitWork)
 
   currentRoot = wipRoot
   wipRoot = undefined
@@ -219,5 +219,5 @@ export function render(element, container) {
   }
 
   wipRoot = nextUnitWork
-  delections = []
+  deletions = []
 }
